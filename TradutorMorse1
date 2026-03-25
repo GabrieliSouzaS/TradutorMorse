@@ -1,0 +1,76 @@
+/*Turma 02N
+  Nome: Gabrieli Souza Santos RA: 10732702
+  Nome: Stella Farias Vieira  RA: 10732983  */
+
+
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char letras[26] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+    char *morse[26] = {".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."};
+
+    char frase[500]; //tam
+    if (!fgets(frase, 500, stdin)) return 0;
+    frase[strcspn(frase, "\n")] = '\0'; // Remove o \n do final
+
+    char letra_atual[10];
+    int j = 0; //indice letra
+    char frasetraduzida[500];
+    int idx_t = 0; //indice traduzida
+    int i = 0; //percorrer
+
+    while (frase[i] != '\0') { //percorre ate o final
+        // Se não for espaço, acumula o código Morse da letra
+        if (frase[i] != ' ') {
+            letra_atual[j++] = frase[i];
+        } 
+        
+        // Se encontrou um espaço ou é o fim da string, processa a letra
+        if (frase[i] == ' ' || frase[i+1] == '\0') { //se encontrou esp fim letra
+            if (j > 0) { //so processa se existe codigo 
+                letra_atual[j] = '\0'; //fim string
+                
+                // Verifica se é corrompida (contém *)
+                int corrompida = 0;
+                if (letra_atual[j-1] == '*') {
+                    corrompida = 1;
+                    letra_atual[j-1] = '\0'; // Remove o * para comparar o prefixo
+                }
+
+                if (!corrompida) { //se nao corrompida percorre todas as letras 
+                    // Tradução Normal
+                    for (int k = 0; k < 26; k++) {
+                        if (strcmp(letra_atual, morse[k]) == 0) {
+                            frasetraduzida[idx_t++] = letras[k]; //add letra
+                            break;
+                        }
+                    }
+                } else {
+                    // Tradução Corrompida: Busca prefixos 
+                    frasetraduzida[idx_t++] = '[';  
+                    for (int k = 0; k < 26; k++) {
+                        // Se o código morse da tabela começa com o que temos na letra_atual
+                        if (strncmp(morse[k], letra_atual, strlen(letra_atual)) == 0) { 
+                            frasetraduzida[idx_t++] = letras[k]; //adiciona possiveis letras 
+                        }
+                    }
+                    frasetraduzida[idx_t++] = ']';
+                }
+                j = 0; // Reseta o buffer da letra
+            }
+
+            // Tratamento de ESPAÇO entre palavras (dois espaços na entrada = um na saída) 
+            if (frase[i] == ' ' && frase[i+1] == ' ') { //separador de palavras 
+                frasetraduzida[idx_t++] = '  '; 
+                while(frase[i+1] == ' ') i++;
+            }
+        }
+        i++;
+    }
+
+    frasetraduzida[idx_t] = '\0';
+    printf("%s\n", frasetraduzida);
+
+    return 0;
+}  
